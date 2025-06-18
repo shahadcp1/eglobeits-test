@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=app:*,prisma:*
+    command: sh -c "npm run dev"
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # For Node.js debugger
+
+  db:
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    ports:
+      - "5050:80"

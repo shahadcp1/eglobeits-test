@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id               String               @id @default(uuid())
+  title            String
+  description      String
+  eventDate        DateTime
+  capacity         Int
+  eventParticipants EventParticipant[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model Participant {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  events EventParticipant[]
+}
+
+// Pivot table for many-to-many relationship
+model EventParticipant {
+  id            String      @id @default(uuid())
+  eventId       String
+  event         Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  registeredAt  DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([eventId, participantId])
+  @@map("event_participants")
+}
